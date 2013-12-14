@@ -33,11 +33,11 @@ public class Particle {
         this.speed = speed;
     }
 
-    public void calculateNewSpeed(final int momentum, final int localW, final int globalW, final Problem.Solution bestGlobalSolution) {
+    public void calculateNewSpeed(final double momentum, final double localW, final double globalW, final Problem.Solution bestGlobalSolution) {
         for (int i = 0; i < speed.length; i++) {
-            speed[i] = momentum * speed[i] +
-                    rand.nextInt(localW) * bestLocalSolution.getValue(i) +
-                    rand.nextInt(globalW) * bestGlobalSolution.getValue(i);
+            speed[i] = (int) (momentum * speed[i] +
+                    rand.nextInt() / Integer.MAX_VALUE * localW * bestLocalSolution.getValue(i) +
+                    rand.nextInt() / Integer.MAX_VALUE * globalW * bestGlobalSolution.getValue(i));
         }
     }
 
