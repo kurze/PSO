@@ -63,9 +63,8 @@ public class ColorParticleSwarmOptimizationSearch implements Solver {
                     System.out.print(improvementMark);
                 }
             }
-
+            System.err.println();
         }
-        System.err.println();
     }
 
     @Override

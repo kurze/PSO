@@ -12,6 +12,7 @@ public class Particle {
 
     public Particle(Problem.Solution solution, int[] speed) {
         this.solution = solution;
+        bestLocalSolution = solution.copy();
         this.speed = speed;
         rand = new Random();
     }
@@ -43,6 +44,11 @@ public class Particle {
     public boolean applySpeed() {
         for (int i = 0; i < speed.length; i++) {
             int value = solution.getValue(i) + speed[i];
+            if (value < 0) {
+                value = 0;
+            } else if (value > 255) {
+                value = 255;
+            }
             solution.setValue(i, value);
         }
         if (bestLocalSolution.getFitness() > solution.getFitness()) {
