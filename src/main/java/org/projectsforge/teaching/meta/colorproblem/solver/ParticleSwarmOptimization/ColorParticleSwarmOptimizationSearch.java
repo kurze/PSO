@@ -51,7 +51,7 @@ public class ColorParticleSwarmOptimizationSearch implements Solver {
         // initialization
         particles = new Particle[nbParticles];
         for (int i = 0; i < nbParticles; i++) {
-            particles[i] = new Particle(problem.newRandomSolution(), newRandomSpeed());
+            particles[i] = new Particle(problem.newRandomSolution());
             if (best == null || best.getFitness() > particles[i].getSolution().getFitness()) {
                 best = particles[i].getSolution().copy();
                 System.out.print(improvementMark);
@@ -72,8 +72,8 @@ public class ColorParticleSwarmOptimizationSearch implements Solver {
                 }
             }
             if (decrease) {
-                bestGlobalWeight = bestGlobalWeight - (bestGlobalWeight * 100 / decreaseRate);
-                bestLocalWeight = bestLocalWeight - (bestLocalWeight * 100 / decreaseRate);
+                //  bestGlobalWeight = bestGlobalWeight - (bestGlobalWeight * 100 / decreaseRate);
+                //  bestLocalWeight = bestLocalWeight - (bestLocalWeight * 100 / decreaseRate);
                 momentum = momentum - (momentum * 100 / decreaseRate);
             }
         }
@@ -83,13 +83,5 @@ public class ColorParticleSwarmOptimizationSearch implements Solver {
     @Override
     public void setProblem(Problem problem) {
         this.problem = problem;
-    }
-
-    private int[] newRandomSpeed() {
-        int[] result = new int[3];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = rand.nextInt(255);
-        }
-        return result;
     }
 }

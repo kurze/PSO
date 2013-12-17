@@ -8,13 +8,13 @@ public class Particle {
     private Problem.Solution solution;
     private Problem.Solution bestLocalSolution;
     private int[] speed;
-    Random rand;
+    private Random rand;
 
-    public Particle(Problem.Solution solution, int[] speed) {
+    public Particle(Problem.Solution solution) {
         this.solution = solution;
         bestLocalSolution = solution.copy();
-        this.speed = speed;
         rand = new Random();
+        newRandomSpeed();
     }
 
     public Problem.Solution getBestLocalSolution() {
@@ -36,8 +36,9 @@ public class Particle {
     public void calculateNewSpeed(final double momentum, final double localW, final double globalW, final Problem.Solution bestGlobalSolution) {
         for (int i = 0; i < speed.length; i++) {
             speed[i] = (int) (momentum * speed[i] +
-                    rand.nextInt() / Integer.MAX_VALUE * localW * bestLocalSolution.getValue(i) +
-                    rand.nextInt() / Integer.MAX_VALUE * globalW * bestGlobalSolution.getValue(i));
+                    rand.nextDouble() * localW * (bestLocalSolution.getValue(i) - solution.getValue(i)) +
+                    rand.nextDouble() * globalW * (bestGlobalSolution.getValue(i) - solution.getValue(i))
+            );
         }
     }
 
@@ -56,5 +57,12 @@ public class Particle {
             return true;
         }
         return false;
+    }
+
+    private void newRandomSpeed() {
+        speed = new int[solution.size()];
+        for (int i = 0; i < speed.length; i++) {
+            speed[i] = rand.nextInt(256);
+        }
     }
 }
