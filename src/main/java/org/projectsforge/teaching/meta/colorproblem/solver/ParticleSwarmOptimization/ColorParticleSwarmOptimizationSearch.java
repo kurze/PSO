@@ -13,20 +13,20 @@ public class ColorParticleSwarmOptimizationSearch implements Solver {
 
     // parameter for normal particle swarm optimization
     @Parameter(names = "-momentum", description = "inertia strength of particles")
-    public double momentum = 0.8;
+    public double momentum = 0.7298;
 
     @Parameter(names = "-bestLocalWeight", description = "weight of the best local solution")
-    public double bestLocalWeight = 0.5;
+    public double bestLocalWeight = 1.49618;
 
     @Parameter(names = "-bestGlobalWeight", description = "weight of the best global solution")
-    public double bestGlobalWeight = 0.9;
+    public double bestGlobalWeight = 1.49618;
 
     @Parameter(names = "-nbParticles", description = "number of particles")
-    public int nbParticles = 10000;
+    public int nbParticles = 1000;
 
     // parameter for decrease addition
     @Parameter(names = "-decrease", description = "activation of decease addition")
-    public boolean decrease = true;
+    public boolean decrease = false;
 
     @Parameter(names = "-decreaseRate", description = "rate of decrease of other parameters")
     public double decreaseRate = 3;
@@ -37,7 +37,10 @@ public class ColorParticleSwarmOptimizationSearch implements Solver {
 
     private Particle[] particles;
 
-    private Problem.Solution best;
+    private double[] globalWeight;
+
+    private Problem.Solution[] best;
+
 
     private Random rand;
 
@@ -50,34 +53,48 @@ public class ColorParticleSwarmOptimizationSearch implements Solver {
     public void run() {
         // initialization
         particles = new Particle[nbParticles];
+        globalWeight = new double[5];
+        best = new Problem.Solution[5];
+
+        for(int i=0; i < globalWeight.length; i++){
+            globalWeight[i] = bestGlobalWeight;// / ((i*2) + 1);
+        }
+
         for (int i = 0; i < nbParticles; i++) {
             particles[i] = new Particle(problem.newRandomSolution());
-            if (best == null || best.getFitness() > particles[i].getSolution().getFitness()) {
-                best = particles[i].getSolution().copy();
-                System.out.print(improvementMark);
+            for(int j = 0; j < best.length; j++){
+                if(best[j] == null || best[0].getFitness() > particles[i].getSolution().getFitness()) {
+                    best[j] = particles[i].getSolution().copy();
+                    if(j==0){System.out.print(improvementMark);}
+                    break;
+                }
             }
         }
-        int iii = 0;
+        int nbMvt = 0;
         System.out.print("!");
         // run
         while (!problem.shouldStop()) {
-            iii++;
+            nbMvt++;
 
             for (int i = 0; i < nbParticles; i++) {
-                particles[i].calculateNewSpeed(momentum, bestLocalWeight, bestGlobalWeight, best);
-                if (particles[i].applySpeed() &&
-                        best.getFitness() > particles[i].getBestLocalSolution().getFitness()) {
-                    best = particles[i].getSolution().copy();
-                    System.err.print(improvementMark);
+                particles[i].calculateNewSpeed(momentum, bestLocalWeight, globalWeight, best);
+                if (particles[i].applySpeed()){
+                    for(int j = 0; j < best.length; j++){
+                        if(best[j].getFitness() > particles[i].getBestLocalSolution().getFitness()){
+                            best[j] = particles[i].getSolution().copy();
+                            if(j==0){System.err.print(improvementMark);}
+                            break;
+                        }
+                    }
                 }
             }
             if (decrease) {
-                //  bestGlobalWeight = bestGlobalWeight - (bestGlobalWeight * 100 / decreaseRate);
-                //  bestLocalWeight = bestLocalWeight - (bestLocalWeight * 100 / decreaseRate);
-                momentum = momentum - (momentum * 100 / decreaseRate);
+                //bestGlobalWeight = bestGlobalWeight - (bestGlobalWeight * 100 / (100+decreaseRate));
+                //bestLocalWeight = bestLocalWeight - (bestLocalWeight * 100 / (100+decreaseRate));
+                momentum = momentum - (momentum * 100 / (100 + decreaseRate));
             }
         }
-        System.out.println(iii);
+        System.out.println("!"+nbMvt);
     }
 
     @Override
