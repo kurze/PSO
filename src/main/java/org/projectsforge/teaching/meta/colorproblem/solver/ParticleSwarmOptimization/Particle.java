@@ -7,14 +7,15 @@ import java.util.Random;
 public class Particle {
     private Problem.Solution solution;
     private Problem.Solution bestLocalSolution;
-    private int[] speed;
+    private double[] speed;
     private Random rand;
 
     public Particle(Problem.Solution solution) {
         this.solution = solution;
         bestLocalSolution = solution.copy();
         rand = new Random();
-        newRandomSpeed();
+        //newRandomSpeed();
+        newZeroSpeed();
     }
 
     public Problem.Solution getBestLocalSolution() {
@@ -25,20 +26,25 @@ public class Particle {
         return solution;
     }
 
-    public int[] getSpeed() {
+    public double[] getSpeed() {
         return speed;
     }
 
-    public void setSpeed(int[] speed) {
+    public void setSpeed(double[] speed) {
         this.speed = speed;
     }
 
-    public void calculateNewSpeed(final double momentum, final double localW, final double globalW, final Problem.Solution bestGlobalSolution) {
+    public void calculateNewSpeed(final double momentum, final double localW, final double[] globalW,  final Problem.Solution[] bestGlobalSolution) {
         for (int i = 0; i < speed.length; i++) {
-            speed[i] = (int) (momentum * speed[i] +
-                    rand.nextDouble() * localW * (bestLocalSolution.getValue(i) - solution.getValue(i)) +
-                    rand.nextDouble() * globalW * (bestGlobalSolution.getValue(i) - solution.getValue(i))
+            speed[i] = (int) (momentum * speed[i]*2 * rand.nextDouble() +
+                    rand.nextDouble() * localW * (bestLocalSolution.getValue(i) - solution.getValue(i))
             );
+            for(int j = 0; j < globalW.length; j++){
+                if(rand.nextBoolean()){
+                    speed[i] += rand.nextDouble() * globalW[j] * (bestGlobalSolution[j].getValue(i) - solution.getValue(i));
+                    break;
+                }
+            }
         }
     }
 
@@ -64,9 +70,16 @@ public class Particle {
     }
 
     private void newRandomSpeed() {
-        speed = new int[solution.size()];
+        speed = new double[solution.size()];
         for (int i = 0; i < speed.length; i++) {
-            speed[i] = rand.nextInt(256);
+            speed[i] = rand.nextDouble()*255;
+        }
+    }
+
+    private void newZeroSpeed(){
+        speed = new double[solution.size()];
+        for (int i = 0; i < speed.length; i++) {
+            speed[i] = 0;
         }
     }
 }
