@@ -44,11 +44,15 @@ public class Particle {
 
     public boolean applySpeed() {
         for (int i = 0; i < speed.length; i++) {
-            int value = solution.getValue(i) + speed[i];
-            if (value < 0) {
-                value = 0;
-            } else if (value > 255) {
-                value = 255;
+            int value = (int) (solution.getValue(i) + speed[i]);
+            while(value<0 || value>255){
+                if (value < 0) {
+                    //value = 255 + value;          // espace infini (les extremités sont connectées)
+                    value = 0 -  value;             // espace fini (rebond sur le bords)
+                } else if (value > 255) {
+                    //value = 0 - (255 - value);    // espace infini (les extremités sont connectées)
+                    value = 255 +  (255 - value);   // espace fini (rebond sur le bords)
+                }
             }
             solution.setValue(i, value);
         }
